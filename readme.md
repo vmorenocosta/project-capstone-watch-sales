@@ -8,7 +8,7 @@ Your Capstone project is the culmination of your time at GA. You will be tasked 
 - A technical report aimed at fellow data scientists that explains your process and findings.
 - A public presentation of your findings aimed primarily at laypeople.
 
-### **[Capstone, Part 1: Topic Ideas](./part_01/)**
+### **[Capstone, Part 1: Topic Ideas](./instructions/part_01.md)**
 
 Get started by choosing **three potential topics**.  might be a domain you are familiar with, a particular interest you have, something that affects a community you are involved in, or an area that relates to a field you wish to work in.
 
@@ -24,7 +24,7 @@ One of the best ways to get feedback on your ideas quickly is to share them with
 In [this Google Sheet](https://docs.google.com/spreadsheets/d/1OShtZSiaWIzLOJVVRs8yEkHNLqvNa4Sps4Jj7D5OQaM/edit?usp=sharing) share your **one-sentence** problem statement **and** whether you have your dataset in hand.
 - **Due**: See Google Classroom.
 
-### **[Capstone, Part 2: Problem Statement + EDA](./part_02/)**
+### **[Capstone, Part 2: Problem Statement + EDA](./instructions/part_02.md)**
 
 For Part 2, provide a clear statement of the problem that you have chosen and an overview of your approach to solving that problem. Summarize your objectives, goals & success metrics, and any risks & assumptions. Outline your proposed methods and models, perform your initial EDA, and summarize the process. **Your data should be in hand by this point in the process!**
 
@@ -33,14 +33,14 @@ For Part 2, provide a clear statement of the problem that you have chosen and an
 - **Goal**: Describe your proposed approach and summarize your initial EDA in a document you push to your GitHub repo.
 - **Due**: See Google Classroom.
 
-### **[Capstone, Part 3: Progress Report + Preliminary Findings](./part_03/)**
+### **[Capstone, Part 3: Progress Report + Preliminary Findings](./instructions/part_03.md)**
 
 In Part 3, you'll create a progress report of your work to get feedback along the way. Describe your approach, initial results, and any setbacks or lessons learned so far. Your report should include updated visual and statistical analysis of your data. You’ll also meet with your instructional team to get feedback on your results so far!
 
 - **Goal**: Discuss progress and setbacks, include visual and statistical analysis, in your GitHub repo.
 - **Due**: See Google Classroom.
 
-### **[Capstone, Part 4: Report Writeup + Technical Analysis](./part_04/)**
+### **[Capstone, Part 4: Report Writeup + Technical Analysis](./instructions/part_04.md)**
 
 Your goal for Part 4 is to develop a technical document (in the form of Jupyter notebook) that could be shared with your peers.
 
@@ -49,7 +49,7 @@ Document your research and analysis including a summary, an explanation of your 
 - **Goal**: Detailed report and code with a summary of your statistical analysis, model, and evaluation metrics.
 - **Due**: See Google Classroom.
 
-### **[Capstone, Part 5: Presentation + Recommendations](./part_05/)**
+### **[Capstone, Part 5: Presentation + Recommendations](./instructions/part_05.md)**
 
 Whether during an interview or as part of a job, you will frequently have to present your findings to business partners and other interested parties - many of whom won't know anything about data science! That's why for Part 5, you'll create a presentation of your previous findings with a semi-technical audience in mind.
 
