@@ -19,8 +19,8 @@
 5. Have you changed topics since your lightning talk? Since you submitted your Problem Statement and EDA? If so, do you have the necessary data in hand (and the requisite EDA completed) to continue moving forward?
     - No.
 6. What is your timeline for the next week and a half? What do you _have_ to get done versus what would you _like_ to get done?
-    - By Saturday night: EDA of new models, and clean/EDA of new datasets
-    - By Tuesday night: Finish refining models
+    - By Sunday night: EDA of new models, and clean/EDA of new datasets
+    - By Wednesday night: Finish refining models
     - By Thursday night: Clean/organize notebook, write Python script to generate predictions (if there's time), and write executive summary.
     - Friday: Start working on presentation, and make final tweaks to report based on presentation.
 7. What topics do you want to discuss during your 1:1?
