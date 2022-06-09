@@ -15,8 +15,7 @@ from sklearn.metrics import ConfusionMatrixDisplay
 from custom_functions import *
 
 def calc_norm_sales(df_models):
-    """ This function calculates a target value - Normalized Sales, which is the overall sales divided by the number of years that the model was sold. 
-    The function modifies the dataframe in place
+    """ This function calculates a target value - Normalized Sales, which is the overall sales divided by the number of years that the model was sold.
     
     args:
         df_models (Pandas dataframe): a dataframe which contains monthly sales
@@ -48,18 +47,17 @@ def calc_norm_sales(df_models):
     return df_models.merge(yearly_sales[['norm_sales']],left_on = 'style_id',right_index=True)
 
 
-def calc_norm_yearly_sales(df_models, last_month_of_sales, year):
+def calc_norm_yearly_sales(df_models, last_month_of_sales, year=2019):
     """ This function calculates a target value - normalized yearly sales, which is calculated by:
     1. Calculate yearly sales average
     2. Divide yearly sales by yearly average
     3. Sum the normalized sales
     4. Divide the sum by the total # years for which there were sales
-    The function modifies the dataframe in place.
     
     args:
         df_models (Pandas dataframe): a dataframe which contains monthly sales
         last_month_of_sales (int): the last month there were sales in the dataset
-        year (int): the year to use to multiply normalized sales to get target value
+        year (int): the year to use to multiply normalized sales to get target value (default is 2019)
         
     return:
         df_models (Pandas dataframe): the dataframe, now containing overall sales and norm_sales
