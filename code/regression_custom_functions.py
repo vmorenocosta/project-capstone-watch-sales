@@ -8,9 +8,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, f1_score
 from sklearn.metrics import ConfusionMatrixDisplay
 
+import warnings
 
 from custom_functions import *
 
@@ -93,9 +94,10 @@ def calc_norm_yearly_sales(df_models, last_month_of_sales, year=2019):
             norm_sales.append(avg_yearly_sales[str(year)]*df_models.loc[i,'total_norm_sales']/years_of_sales)
     yearly_sales['norm_yearly_sales'] = norm_sales
     
-    plt.title('Normalized yearly sales')
+    plt.title('Histogram of normalized yearly sales by model')
     plt.hist(norm_sales)
-    plt.ylabel('Num models');
+    plt.xlabel('Normalized yearly sales')
+    plt.ylabel('Count');
     
     return df_models.merge(yearly_sales[['norm_yearly_sales']],left_on = 'style_id',right_index=True)
 
@@ -121,7 +123,9 @@ def make_classes(target, class_upper):
                 class_sales.append(c+1)
 
     plt.hist(class_sales)
-    plt.title('Distribution of labeled classes');
+    plt.title('Number of models in each classes (excl. test data)')
+    plt.xlabel('Classes')
+    plt.ylabel('Count');
 
     return class_sales
 
@@ -249,14 +253,15 @@ def create_evaluate_model_class(model, X_train, X_test, y_train, y_test):
     pipe.fit(X_train,y_train)
     
     # Print traw and test score
+    test_accuracy = pipe.score(X_test,y_test)
     print('Train accuracy:', pipe.score(X_train,y_train))
-    print('Test accuracy:', pipe.score(X_test,y_test))
+    print('Test accuracy:', test_accuracy)
 
     # Create predictions with test data
     preds = pipe.predict(X_test)
 
     # Evaluate predictions
-    test_accuracy = pipe.score(X_test,y_test)
+    print('Test f1 score:', f1_score(y_test, preds, average='weighted'))
     
     # Generate confusion matrix
     ConfusionMatrixDisplay.from_predictions(y_test,preds)
@@ -264,3 +269,30 @@ def create_evaluate_model_class(model, X_train, X_test, y_train, y_test):
     
     print()
     return pipe, preds, test_accuracy
+
+
+def get_Cs_scores(pipe,model_name):
+    """ This function obtains the score for each C explored in the Logistic Regression CV
+        args:
+            pipe (a Sklearn pipeline): a pipeline that contains a fitted logistic regression CV model
+        return:
+            Cs_scores: a dictionary of Cs and the average score across all classes
+    """
+    Cs_scores = []
+    pipe_scores = pipe.named_steps[model_name].scores_
+    for i in range(len(pipe_scores[0][0])):
+        scores_sum = 0
+        for j in range(len(pipe_scores[0])):
+            scores_sum += (pipe_scores[0][j][i])
+        Cs_scores.append(scores_sum/(j+1))
+    Cs_scores = dict(zip(pipe.named_steps[model_name].Cs_,Cs_scores))
+    return Cs_scores
+
+
+def get_coefs(pipe, model_name):
+    df_coefs = pd.DataFrame(index=pipe.named_steps.ct.named_transformers_.ohe.get_feature_names_out())
+    coefs = pipe.named_steps[model_name].coef_
+    for i in range(len(coefs)):
+        df_coefs[f'coefs_class_{i}'] = coefs[i]
+    return df_coefs
+
