@@ -3,11 +3,6 @@ import pandas as pd
 import numpy as np
 import datetime
 import warnings
-from sklearn.metrics import mean_squared_error
-import random
-import plotly.express as px
-import plotly.graph_objects as go
-import seaborn as sns
 
 
 def snake_case(df):
@@ -295,38 +290,36 @@ def monthly_to_yearly(df, year):
             warnings.warn(f'Missing month of {col}')
     return yearly_sales
 
-
-def eda_by_column(df_models, group_col):
-    """ This function generates various plots by grouping a dataframe by the "group_col" and plotting against a variable.
+    
+def preds_to_order(order_sheet, order_multiple, class_multiple = 1, ):
+    """ This function generates orders from the forecasts from old models and the predictions for new models.
+    The function detects whether it is Q4, and if so, increases the order by a multiplier given by the following rule of thumb:
+    "Q4 sales are usually 1/3 of the yearly sales".
     
     args:
-        df_models (Pandas Dataframe): a dataframe that contains the columns names for group_col and variable
-        group_col (str): the name of a categorical column to group df_models
+        order_sheet (Pandas dataframe): a dataframe that contains a new_model_preds_columns and proposal_preds_column (both variables)
+        and a qty_total_inv column
+        order_multiple (int): an integer that defines the quantity to which a proposal prediction is rounded up
+        class_multiple (int), optional: the value to multiply the class value by to generate an order (only applicable for classification).
+                                        Default is 1 to handle regression cases.
     """
-    data = df_models.groupby(by=group_col).mean()['norm_yearly_sales']
-    plt1 = px.histogram(data, title = f'Histogram of average normalized yearly sales grouped by {group_col}', 
-                        color = data.keys())
-    plt1.show()
-
-    data1 = df_models.groupby(by=group_col).mean()['norm_yearly_sales'].sort_values(ascending=False).head(10)
-    plt2 = px.bar(data1, title = f'Top {len(data1)} average normalized yearly sales grouped by {group_col}', color = data1.keys())
-    plt2.show()
+    order_sheet['quarterly_forecast'] = 0
+    order_sheet['order_quantity'] = 0
+    proposal_preds_column = [x for x in order_sheet.columns if 'monthly_forecast' in x][0]
+    new_model_preds_column = [x for x in order_sheet.columns if ('monthly_classifications' in x) | ('monthly_regressions' in x)][0]
+    Q4_multiplier = 1
+    if proposal_preds_column[-1] == str(4):
+        Q4_multiplier = (1/3) / ((2/3) * (1/3)) # Q4 divided by another Q sales 
     
-    data2 = df_models.groupby(by=group_col).count()['norm_yearly_sales'].sort_values(ascending=False).head(10)
-    plt3 = px.bar(data2, title = f'Top {len(data2)} most common {group_col}', color = data2.keys())
-    plt3.show()
-
-    sales = return_sales(df_models,group_col)
-    top_collections_2019 = dict(sales.loc['2019',:].sum().sort_values(ascending=False).head(20))
-    top_collections_2020 = dict(sales.loc['2020',:].sum().sort_values(ascending=False).head(20))
-    top_collections_2021 = dict(sales.loc['2021',:].sum().sort_values(ascending=False).head(20))
-
-    fig = go.Figure(data=[
-        go.Bar(name='2019', x=list(top_collections_2019.keys()), y=list(top_collections_2019.values())),
-        go.Bar(name='2020', x=list(top_collections_2020.keys()), y=list(top_collections_2020.values())),
-        go.Bar(name='2021', x=list(top_collections_2021.keys()), y=list(top_collections_2021.values()))
-    ])
-    # Change the bar mode
-    fig.update_layout(barmode='group', title=f'Top {len(top_collections_2019)} {group_col} in each year')
-    fig.show()
-    
+    for i in order_sheet.index:
+        base = order_multiple
+        if str(order_sheet.loc[i,proposal_preds_column]) == "nan":
+            quarterly = class_multiple * order_sheet.loc[i,new_model_preds_column]
+            order = quarterly * Q4_multiplier
+        else:
+            quarterly = 3 * order_sheet.loc[i,proposal_preds_column] * Q4_multiplier
+            order = quarterly - order_sheet.loc[i,'qty_total_inv']
+            if order < 0:
+                order = 0
+        order_sheet.loc[i,'quarterly_forecast'] = round(quarterly)
+        order_sheet.loc[i,'order_quantity'] = base * round(order/base)
