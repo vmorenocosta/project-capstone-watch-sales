@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.metrics import mean_squared_error
 import random
 from sktime.forecasting.naive import NaiveForecaster
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def pred_rmse(y_test, preds):
     """ This function generates the root mean squared error for the 2022Q2 predictions against the actual sales and all models.
@@ -14,9 +16,25 @@ def pred_rmse(y_test, preds):
 def plot_pred(y_train, y_test, preds):
     """ This function generates 10 plots for random models in the dataset.
     """
-    for i in [random.randint(0,y_train.shape[1]) for _ in range(10)]:
+    for i in [random.randint(0,y_train.shape[1]-1) for _ in range(10)]:
         plot_series(y_train.iloc[:,i], y_test.iloc[:,i], preds.iloc[:,i], labels = ['train','test','preds']);
-        
+
+def plot_preds(y_test, preds, model_name):
+    """ This function creates two plots: the predictions against the actual values, and the predictions against the residuals.
+    
+    Args:
+        y_test (Pandas series): actual values
+        preds (Pandas series): predictions
+    """    
+    residuals = y_test - preds
+    plt1 = plt.figure()
+    plt.scatter(preds,y_test)
+    xpoints = ypoints = plt.xlim()
+    plt.plot(xpoints, ypoints, linestyle='--', color='k', lw=3, scalex=True, scaley=True)
+    plt.xlabel('Predicted sales')
+    plt.ylabel('Actual sales')
+    plt.title(f'Predicted vs Actual Sales: {model_name}');
+    
         
 def forecast(y):
     """ This function generates the next month's predictions for a dataframe containing monthly sales.

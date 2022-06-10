@@ -1,59 +1,202 @@
-# Capstone Project
+# Forecasting Quarterly Watch Sales for XYZ Company
 
-Your Capstone project is the culmination of your time at GA. You will be tasked with developing an interesting question, collecting the data required to model that data, developing the strongest model (or models) for prediction, and communicating those findings to other data scientists and non-technical individuals. This introductory document lays out the five check-ins for the project and their due dates.
 
-## Your Deliverables
+## Executive Summary
+XYZ company is an American company that distributes fashion and household items to smaller retailers in the Latin America & North American markets. Success is determined by how well XYZ manages inventory to optimize warehouse space and minimize the purchase of unsuccessful products. XYZ typically purchases directly from the brands on a quarterly basis, which they then go on to sell to the smaller retailers. They must predict how much they can sell to the smaller retailers in order to place quarterly brand orders. 
 
-- A well-made predictive model using either structured or unstructured machine learning techniques (or other technique approved in advanced by the instructors), as well as clean, well-written code.
-- A technical report aimed at fellow data scientists that explains your process and findings.
-- A public presentation of your findings aimed primarily at laypeople.
+Typically, XYZ makes their predictions by calculating a 6-month rolling average and placing an order to make sure they have enough inventory for 3 months. If it is a new model, they must make a guess based on the attributes of the watch. This is a very manual process and requires the 30-year expertise of the owner to be done well. Additionally, there are many different types of products within each brand (ex. 300 different watch models for 1 brand), and there are approximately 40 brands.
 
-### **[Capstone, Part 1: Topic Ideas](./instructions/part_01.md)**
+In this project, I build a forecasting and classifications model that accurately and more quickly forecasts quarterly sales for both new and existing models for one watch brand. The model predicts watch sales based on historical sales, and if not available, the individual model attributes (style, gender, color, price, material, etc). Different types of models were explored to adequately and appropriately accomplish this goal (forecasting, regression, classification). The predictions were then processed to develop order quantities and produce the order_sheet.csv product. These order quantities were compared against the owner's planned order for the next quarter during a meeting in mid-June.
 
-Get started by choosing **three potential topics**.  might be a domain you are familiar with, a particular interest you have, something that affects a community you are involved in, or an area that relates to a field you wish to work in.
+## Project Directory
+```
+capstone
+|__ code
+|   |__ 01_data_cleaning.ipynb
+|   |__ 02_EDA.ipynb
+|   |__ 03_Forecasting_Quarterly.ipynb
+|   |__ 04_Forecasting_Monthly.ipynb
+|   |__ 05_Regression_Predict_Sales.ipynb
+|   |__ 06_Classification_Predict_Sales.ipynb
+|   |__ 07_Proposal_Order_Amounts.ipynb
+|   |__ custom_functions.py
+|   |__ eda_custom_functions.py
+|   |__ forecasting_custom_functions.py
+|   |__ regression_custom_functions.py
+|__ data
+|   |__ cleaned_datasets
+|   |__ |__ df_models.csv
+|   |__ predictions
+|   |__ |__ new_models_classifications.csv
+|   |__ |__ new_models_regression.csv
+|   |__ |__ proposal_forecast.csv
+|   |__ |__ sarima_preds_monthly.csv
+|   |__ |__ sarima_preds.csv
+|   |__ raw_datasets
+|   |__ |__ ALL ITEMS FROM WEBSITE.xlsx
+|   |__ |__ ITEMS CREATED 2022H3.xlsx
+|   |__ |__ Plan Order 2022H3.xlsx
+|   |__ |__ PROPOSAL.xlsx
+|   |__ |__ WATCH FLOW CHART.xlsx
+|__ images
+|   |__ Order_Estimate.png
+|__ output
+|   |__ order_sheet.csv
+|__ capstone_presentation.pdf
+|__ README.md
+```
 
-One of the best ways to get feedback on your ideas quickly is to share them with others. That's why for Part 1 of your Capstone project, you'll share three potential topics.
+## Data Collection and Processing
 
-**The ultimate choice of topic for your capstone project is yours!** However, this is research and development work. Sometimes projects that look easy can be difficult and vice versa. It never hurts to have a second (or third) option available.
+The data for the project was pulled from 5 sources provided by XYZ Company, as described in the chart below:
 
-- **Goal**: Share three potential topics and/or potential sources of data.
-- **Due**: See Google Classroom.
+|Source|Description|No. Samples|No. Features|
+|---|---|---|---|
+|WATCH FLOW CHART.xlsx|contains XYZ's records of each model's sales for the brand since 2015 (when they started distributing the brand)|1591|24|
+|PROPOSAL.xlsx|contain's the brand's current collection and XYZ's order on April 16, 2022. It contains older models found in the flow chart and new models with no previous sales|306|22|
+|ALL ITEMS FROM WEBSITE.xlsx|contains all watches from the brand's website, and includes more attributes.|1195|26|
+|ITEMS CREATED 2022H3.xlsx|contains the new (2022H3) watch attributes from the brand's website.|33|20|
+|Plan Order 2022H3.xlsx|contains XYZ's planned order for the 2022H3 watches|40|11|
+Note: the raw datasets have been removed from the repositories to redact business confidential information
 
-### **Capstone, Part 1.5:**
 
-In [this Google Sheet](https://docs.google.com/spreadsheets/d/1OShtZSiaWIzLOJVVRs8yEkHNLqvNa4Sps4Jj7D5OQaM/edit?usp=sharing) share your **one-sentence** problem statement **and** whether you have your dataset in hand.
-- **Due**: See Google Classroom.
+In notebook 1, the 5 source datasets were cleaned, merged, and processed into one main dataset:
 
-### **[Capstone, Part 2: Problem Statement + EDA](./instructions/part_02.md)**
+|Dataset|Description|No. Samples|No. Features|
+|---|---|---|---|
+|[df_models.csv](./data/cleaned_datasets/df_models.csv)|cleaned, processed and merged version of all the data in the raw datasets|1759|125|
 
-For Part 2, provide a clear statement of the problem that you have chosen and an overview of your approach to solving that problem. Summarize your objectives, goals & success metrics, and any risks & assumptions. Outline your proposed methods and models, perform your initial EDA, and summarize the process. **Your data should be in hand by this point in the process!**
+The general procedure for cleaning and processing each dataset was:
+1. Standardizing column names
+2. Selecting only desired columns
+3. Imputing null values
+4. Calculting monthly sales from yearly sales (WATCH FLOW CHART only)
+5. Standardizing values
 
-**Again, your data should be in hand by now!**
+Once each dataset was cleaned, they were merged in a stepwise fashion, in order of the chart above. They were then cleaned and processed again in the following procedure:
+1. Check and consolidate duplicate columns
+2. Impute null values
+3. Recalculate dependent data
+4. Examine categorical data and simplify/reduce categories
+5. Manually replace missing data (only for new models)
+6. Reorganize data so sales data at the end of the dataset
 
-- **Goal**: Describe your proposed approach and summarize your initial EDA in a document you push to your GitHub repo.
-- **Due**: See Google Classroom.
+## Data Dictionary: [df_models.csv](./data/cleaned_datasets/df_models.csv)
 
-### **[Capstone, Part 3: Progress Report + Preliminary Findings](./instructions/part_03.md)**
+|Feature|Type|Description|
+|---|---|---|
+|style_id|object|unique watch model number|
+|max_cart_qty|object|maximum order quantity allowed|
+|availability|object|delivery speed|
+|qty_on_hand|float|no. units in warehouse|
+|qty_on_order|float|no. units already ordered but not yet delivered|
+|qty_total_inv|float|no. units on hand and on order|
+|qty_sold_last_6m|float|no. sold in the last 6 months|
+|qty_avg/mo|float|average units sold in the last 6 months|
+|months_of_supply|float|no. months the total inventory will supply based on qty_avg/mo|
+|xyz_cost|float|price that XYZ pays brand to purchase unit|
+|planned_order|float|no. units XYZ plans to order in 2022Q3|
+|qty_xyz_cost|float|xyz cost multiplied by the planned order|
+|wholesale_price|float|price that XYZ generally sells to customers|
+|proposal_priority|object|brand's priority system for watch models (A is highest)|
+|status|object|when brand was launched or whether discontinued|
+|country_of_origin|object|watch attribute|
+|warranty|object|watch attribute|
+|band_color|object|watch attribute|
+|band_material|object|watch attribute|
+|case_matrial|object|watch attribute|
+|dial_color|object|watch attribute|
+|case_size|object|watch attribute:|
+|gender|object|watch attribute|
+|color|object|watch attribute|
+|retail_price|float|watch attribute|
+|collection|object|watch attribute|
+|clasp_type|object|watch attribute|
+|water_resistance|object|watch attribute|
+|movement_type|object|watch attribute|
 
-In Part 3, you'll create a progress report of your work to get feedback along the way. Describe your approach, initial results, and any setbacks or lessons learned so far. Your report should include updated visual and statistical analysis of your data. You’ll also meet with your instructional team to get feedback on your results so far!
+## Model Development
 
-- **Goal**: Discuss progress and setbacks, include visual and statistical analysis, in your GitHub repo.
-- **Due**: See Google Classroom.
+The overall strategy to generate predictions was to separate the data into two categories:
+1. Existing models with historical XYZ sales data
+2. New models with no historical data
 
-### **[Capstone, Part 4: Report Writeup + Technical Analysis](./instructions/part_04.md)**
 
-Your goal for Part 4 is to develop a technical document (in the form of Jupyter notebook) that could be shared with your peers.
+### Existing Models
+For the existing models, the following forecasting techniques were explored on both quarterly and monthly data to generate predictions:
+1. Last Value
+2. Drift
+3. Last seasonal cycle in the previous year
+4. Mean of last 3, 6, and 9 months
+5. SARIMA with seasonality of 12 months and drift
 
-Document your research and analysis including a summary, an explanation of your modeling approach as well as the strengths and weaknesses of any variables in the process. You should provide insight into your analysis, using best practices like cross validation or applicable prediction metrics.
+Model Attributes:
+- Training Data: 2015-01 to 2022-02 monthly sales
+- Test Data: 2022-03 to 2022-04 monthly sales
+- Metrics: Root Mean Squared Error
 
-- **Goal**: Detailed report and code with a summary of your statistical analysis, model, and evaluation metrics.
-- **Due**: See Google Classroom.
+A major limitation to developing a novel forecasting model was that sales prior to 2022 were provided only by year. To calculate monthly estimates, the following rule of thumb was provided by XYZ: "Q4 sales are usually 1/3 of the yearly sales." Thus, this project assumes that months in Q1, Q2, and Q3 sales are equally distributed amongst the rest of the 2/3 of sales, and the months in Q4 are also equally distributed.
 
-### **[Capstone, Part 5: Presentation + Recommendations](./instructions/part_05.md)**
+Given this limitation, while a SARIMA model was attempted, it was unsurprisingly unable to generate a robust model because the monthly data prior to 2022 were calculated values from a yearly total. The best models were the mean of the last 3-9 months, so the mean of the last 6 months was chosen to be consistent with XYZ Company's current practices. This model minimized the RMSE of the predictions to 6.2 units/month.
 
-Whether during an interview or as part of a job, you will frequently have to present your findings to business partners and other interested parties - many of whom won't know anything about data science! That's why for Part 5, you'll create a presentation of your previous findings with a semi-technical audience in mind.
+<img src='images/forecast_preds.png'> 
 
-You should already have the analytical work complete, so now it's time to clean up and clarify your findings. Create a slide deck that explains your data, visualizes your model, describes your approach, articulates strengths and weaknesses, and presents specific recommendations. Be prepared to explain and defend your model to an inquisitive audience! An interactive app is a great addition to your project.
+### New Models
+For the new models, since there was no prior sales data, the following modeling techniques were explored to generate machine learning predictions based on the existing model's attributes and sales:
 
-- **Goal**: Detailed presentation deck that relates your data, model, and findings to a non-technical audience.
-- **Due**: See Google Classroom.
+Pipeline:
+1. Encode categorical data
+2. Standard scale
+3. Fit one of the following types of models:
+    1. Regression
+        - Linear, Ridge, Lasso, K Neighbors, Random Forest, Ada Boost, Extra Trees
+    2. Classification
+        - Logistic with l1 and l2 penalties, K Neighbors, Random Forest, Ada Boost, Extra Trees, Voting Classifier
+    
+Model Attributes:
+- Features: 'country_of_origin','warranty', 'band_color', 'band_material', 'case_material', 'dial_color', 'case_size', 'color', 'retail_price', 'collection', 'clasp_type', 'water_resistance', 'movement_type'
+- Target: Normalized Yearly Sales, which was calculated by using the following procedure
+    1. Calculate yearly sales average
+    2. Divide yearly sales by yearly average
+    3. Sum the normalized sales
+    4. Divide the sum by the total # years for which there were sales
+    Note, in classification, the existing models were labeled into classes using their normalized yearly sales. The cutoffs for each classes were chosen to match the distribution of planned orders for new watches.
+- Metrics:
+    - Regression: RMSE, R2 Score, Plotting residuals against predicted values
+    - Classification: Accuracy, F1 Score, Confusion Matrix
+
+Most models were very overfit to data, so efforts were focused on increasing bias to the model, so higher powered models were not explored. Ultimately, a classification model was chosen over regression because it generalized better for test data, and allows flexibility in generating orders (dealing with categorical instead of continuous predictions). The final model selected was a voting classifier that used L1 penalty logistic regression and extra trees classifier at a 1:6 ratio.
+
+<img src='images/VC_confusion_matrix.png'> 
+
+## Recommendations: Order Sheet Generation
+
+An [order sheet](./output/order_sheet.csv) for all items on the proposal was generated using the forecasting for existing models and the classifications for new models. Each type of prediction needed its own processing to generate the orders, which was conducted as follows:
+- Forecasted values:
+    1. Multiply monthly value by 3 to calculate quarterly forecast
+    2. Multiply quarterly forecast by 1.5 if it is Q4 forecast
+    3. Subtract inventory on hand or on order
+    4. Round up to the nearest 5 units
+- Classification values:
+    1. Multiply class value by 10 units to obtain quarterly forecast (range of classes is 0 to 5)
+    2. Multiply quarterly forecast by 1.5 if it is Q4 forecast
+    3. Round up to the nearest 5 units
+
+These order quantities were compared against XYZ's planned order for Q3. Of the 300 items on the proposal, 77% of orders were identical to the planned order. 91% were within +/- 10 units. There were 35 new models and 265 existing models on the proposal.
+
+<img src='images/order_residuals.png'> 
+<img src='images/order_planned_vs_quantity.png'> 
+
+## Conclusion
+
+XYZ Company can use this code to generate an initial pass on generating forecastings for this brand's proposals. It is nimble enough to take next quarter's proposal with new models and generate new predictions. While the predictions are not very accurate, they are typically +/- 10 units and can serve as an easy way to generate a quick order sheet.
+
+## Next Steps
+
+Future work includes the following:
+- Evaluate using a shorter rolling average (upon approval from the business) to allow the forecast to become more responsive to shifts in sales
+- To increase bias, further consolidate values in categories, for example:  colors, materials, collections
+- Develop a script or app to allow more user-friendly use of the models
+
+Recommendations for XYZ Company:
+- To continue this type of work, it would be highly benifical to improve data systems so that monthly sales are stored in historical data. This would allow for more sophisticated techniques, like SARIMA.

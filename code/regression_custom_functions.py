@@ -15,39 +15,6 @@ import warnings
 
 from custom_functions import *
 
-def calc_norm_sales(df_models):
-    """ This function calculates a target value - Normalized Sales, which is the overall sales divided by the number of years that the model was sold.
-    
-    args:
-        df_models (Pandas dataframe): a dataframe which contains monthly sales
-        
-    return:
-        df_models (Pandas dataframe): the dataframe, now containing overall sales and norm_sales
-    """
-    # Calculate overall sales
-    df_models = df_models.merge(pd.DataFrame(return_date_col(df_models.set_index('style_id')).T.sum(),columns=['overall_sales']),left_on = 'style_id',right_index=True)
-
-    # Create new dataframe with yearly sales
-    yearly_sales = return_sales(df_models,'style_id').resample('Y').sum().T
-    norm_sales = []
-    for i,x in enumerate(yearly_sales.index):
-        years_of_sales = sum([1 for sales in yearly_sales.loc[x,yearly_sales.iloc[:,0:-1].columns] if sales > 0])
-        if yearly_sales.iloc[i,-1] > 0:
-            years_of_sales += 4/12
-        if years_of_sales == 0:
-            norm_sales.append(0)
-        else:
-            norm_sales.append(df_models.loc[i,'overall_sales']/years_of_sales)
-    yearly_sales['norm_sales'] = norm_sales
-
-    plt.title('Normalized Sales')
-    plt.hist(norm_sales)
-    plt.xlabel('Sales/years sold')
-    plt.ylabel('Num models');
-    
-    return df_models.merge(yearly_sales[['norm_sales']],left_on = 'style_id',right_index=True)
-
-
 def calc_norm_yearly_sales(df_models, last_month_of_sales, year=2019):
     """ This function calculates a target value - normalized yearly sales, which is calculated by:
     1. Calculate yearly sales average

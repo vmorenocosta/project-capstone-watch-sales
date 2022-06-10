@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import warnings
+import math
 
 
 def snake_case(df):
@@ -322,4 +323,4 @@ def preds_to_order(order_sheet, order_multiple, class_multiple = 1, ):
             if order < 0:
                 order = 0
         order_sheet.loc[i,'quarterly_forecast'] = round(quarterly)
-        order_sheet.loc[i,'order_quantity'] = base * round(order/base)
+        order_sheet.loc[i,'order_quantity'] = base * math.ceil(order/base)
