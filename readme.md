@@ -189,12 +189,12 @@ These order quantities were compared against XYZ's planned order for Q3. Of the 
 
 ## Conclusion
 
-XYZ Company can use this code to generate an initial pass on generating forecastings for this brand's proposals. It is nimble enough to take next quarter's proposal with new models and generate new predictions. While the predictions are not very accurate, they are typically +/- 10 units and can serve as an easy way to generate a quick order sheet.
+XYZ Company can use this code to generate an initial pass on generating forecastings for this brand's proposals. It is nimble enough to take next quarter's proposal with new models and generate new predictions. While the predictions are not very accurate, they are typically +/- 10 units and can serve as an easy way to generate a quick order sheet. The business should note the limitations and note that the predictions are "conservative" - they may want to adjust order quantities up.
 
 ## Next Steps
 
 Future work includes the following:
-- Evaluate using a shorter rolling average (upon approval from the business) to allow the forecast to become more responsive to shifts in sales
+- Evaluate using a shorter rolling average (upon approval from the business) to allow the forecast to become more responsive to shifts in sales - Completed
 - To increase bias, further consolidate values in categories, for example:  colors, materials, collections
 - Develop a script or app to allow more user-friendly use of the models
 
