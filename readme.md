@@ -42,7 +42,7 @@ capstone
 |   |__ Order_Estimate.png
 |__ output
 |   |__ order_sheet.csv
-|__ capstone_presentation.pdf
+|__ presentation.pdf
 |__ README.md
 ```
 
